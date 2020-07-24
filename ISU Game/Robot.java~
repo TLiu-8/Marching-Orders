@@ -1,0 +1,201 @@
+/**
+ * Robot.java
+ * Version 1.0
+ * Author: Theo LIu
+ * Date: Dec 18 2018
+ */
+
+// import statements
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.awt.Graphics;
+import java.io.*;
+import javax.imageio.*;
+
+// done
+class Robot{
+  
+  // class variables
+  
+  // sprites
+  private BufferedImage[] sprites;
+  private int currentSprite;
+  private int type;
+  
+  //location
+  private int x, y;
+  private Rectangle boundingBox; 
+  private int width;
+  private int height;
+  private int boxWidth, boxHeight;
+  // movement
+  private int direction;
+  private int delay;
+  private int speed;
+    
+  // Constructor
+  public Robot(int x, int y) {
+    
+    type = (int)(Math.random() * 3); //randomally generate type and starting direction
+    direction = (int)(Math.random() * 4);
+    speed = 4;
+    width = 64;
+    height = 96;
+    loadSprites();
+    currentSprite = 0;
+    this.x = x;
+    this.y = y;
+    boxWidth = width - 20;
+    boxHeight = height - 40;
+    boundingBox = new Rectangle ((int)x+10, (int)y + 30, boxWidth, boxHeight);
+    delay = 0;   //sets delay to 0 (needs to run through 4 game loops before beginning to move)
+  }
+  
+  // Constructor 2: used when creating specific dog robots
+  public Robot(int type){
+    this.type = type;
+  }
+  
+  //METHOD draw()
+  // @param: Graphics g, @return: null
+  public void draw(Graphics g){
+    g.drawImage(sprites[currentSprite], x, y, null);
+    //g.drawRect(x+10,y+30,width-20,height-40);  uncomment to see draw hitbox
+  }
+  
+  //METHOD loadSprites() gets spritesheet and stores in array
+  // @param: null @return: null
+  public void loadSprites(){
+    
+    try{
+      BufferedImage sheet = ImageIO.read(new File("Pictures/spritesheet.png"));
+      final int rows = 4;
+      final int cols = 4;
+      
+      
+      int multiplier;
+      sprites = new BufferedImage[rows * cols];
+      if (type == 1){
+        multiplier = 0;
+      } else if (type == 2){
+        multiplier = width * 4;   // spritesheet also holds different coloured sprites
+      } else {
+        multiplier = width * 8;
+      }
+      
+      for (int j = 0; j < rows; j++){
+        for (int i = 0; i < cols; i++){                    // based on multiplier sprites will be different colours
+          sprites[ (j*cols) + i] = sheet.getSubimage(i * width + multiplier, j * height, width, height);
+        }
+      }
+    } catch(Exception e) {System.out.println("error loading sheet");};
+  }
+  
+  // METHOD: move() changes x and y based on direction loops through array of sprites
+  // @param: null @return: null
+  public void move(){
+    
+    currentSprite++; //change sprite
+    
+    // up movement
+    if (direction == 0){
+      
+      if (currentSprite >= 8 || currentSprite < 4){
+        currentSprite = 4;
+      }
+      this.y = this.y - speed;
+      boundingBox.y = boundingBox.y - speed;
+      
+     // right movement
+    } else if (direction == 1){
+    
+      if (currentSprite >= 16 || currentSprite < 12){
+        currentSprite = 12;
+      }
+      this.x = this.x + speed;
+      boundingBox.x = boundingBox.x+speed;
+      
+    //down movement
+    } else if (direction == 2){
+      if (currentSprite >= 4){
+        currentSprite = 0;
+      }
+      this.y = this.y + speed;
+      boundingBox.y = boundingBox.y+speed;
+      
+    // left movement
+    } else if (direction == 3){
+      
+      if (currentSprite >= 12 || currentSprite < 8){
+        currentSprite = 8;
+      }
+      this.x = this.x - speed;
+      boundingBox.x = boundingBox.x-speed;
+    }
+  }
+  
+  // METHOD switches direction
+  // @param: null @return: null
+  public void switchDirection(){
+    if (direction == 0 || direction == 1){
+      direction = direction + 2;
+    } else {
+      direction = direction - 2;
+    }
+  }
+  
+  // METHOD setDirection() used for rotating robots on clicks
+  // @param: int turn @return: null
+  public void setDirection(int turn){
+    
+    if (turn == 0){
+      direction --;
+      if (direction < 0){
+        direction = 3;
+      }
+    } else if (turn == 1) {
+      direction++;
+      if (direction > 3){
+        direction = 0;
+      }
+    }
+  }
+  
+  // METHOD: checkDelay() after 4 turns the robot will move
+  // @param: null @return: int
+  public int checkDelay() {
+    delay++;
+    return delay;
+  }
+  
+  // METHOD getBoundingBox()
+  // @param: null @return: Rectangle
+  public Rectangle getBoundingBox(){
+    return boundingBox;
+  }
+ 
+  // METHOD getDirection()
+  // @param: null @return: int
+  public int getDirection(){
+    return direction;
+  }
+  
+  //METHOD getType()
+  //@param: null @return: int
+  public int getType(){
+    return type;
+  }
+  
+  //METHOD getBoxWidth()
+  // @param: null @return: int
+  public int getBoxWidth(){
+    return boxWidth;
+  }
+  
+  //METHOD getBoxHeight()
+  // @param: null @return: int
+  public int getBoxHeight(){
+    return boxHeight;
+  }
+  
+}
